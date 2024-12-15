@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Pedidos</title>
+  <link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css'>
+  <link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css'>
+  <link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900'>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+</head>
+<body>
+<div id="app">
+  <v-app>
+
+    <v-app-bar color="deep-purple accent-4" dense dark elevation="0" max-height="55" height="55" elevation="0" dense dark>
+      <v-toolbar-title>
+        <v-icon class="mr-2">mdi-format-list-checks</v-icon>
+        TABLA DE ORDENES
+      </v-toolbar-title>
+
+      <v-spacer></v-spacer>
+
+      <!-- Campo de búsqueda por ID de Fila con ícono de lupa -->
+      <v-text-field
+        v-model="searchIdFila"
+        append-icon="mdi-magnify"
+        label="Buscar por ID de Fila"
+        single-line
+        hide-details
+        dense
+        outlined
+        class="mr-2"
+        style="max-width: 220px;"
+      ></v-text-field>
+
+      <v-btn @click.stop="drawer = !drawer" icon>
+        <v-icon>mdi-filter-outline</v-icon>
+      </v-btn>
+
+      <!-- Botón para descargar Excel de la tabla -->
+      <v-btn @click="descargarExcel" icon>
+        <v-icon>mdi-file-excel-box</v-icon>
+      </v-btn>
+
+      <v-btn @click.stop="nuevaTarea" icon>
+        <v-icon>mdi-pencil-plus</v-icon>
+      </v-btn>
+    </v-app-bar>
+
+    <!-- Drawer de Filtros -->
+    <v-navigation-drawer
+      v-model="drawer"
+      right
+      absolute
+      temporary
+    >
+
+      <v-list-item>
+        <v-list-item-avatar color="deep-purple accent-4">
+          <v-icon color="white">mdi-filter-outline</v-icon>
+        </v-list-item-avatar>
+
+        <v-list-item-content>
+          <v-list-item-title>Filtros</v-list-item-title>
+          <v-list-item-subtitle>Aplicar filtros a las tareas</v-list-item-subtitle>
+        </v-list-item-content>
+      </v-list-item>
+
+      <v-divider></v-divider>
+
+      <v-list dense>
+        <!-- Filtro de Categoría de Producto -->
+        <v-list-item>
+          <v-list-item-content>
+            <v-select
+              :items="['All', 'Furniture', 'Office Supplies', 'Technology']"
+              v-model="filters.categoriaProducto"
+              label="Categoría de Producto"
+              hide-details
+              dense
+              outlined
+              clearable
+            ></v-select>
+          </v-list-item-content>
+        </v-list-item>
+
+        <!-- Filtros de Fecha de Orden -->
+        <v-list-item>
+          <v-list-item-content>
+            <v-menu
+              ref="fechaOrdenInicioMenu"
+              v-model="fechaOrdenInicioMenu"
+              :close-on-content-click="false"
+              transition="scale-transition"
+              offset-y
+              min-width="290px"
+            >
+              <template v-slot:activator="{ on, attrs }">
+                <v-text-field
+                  v-model="filters.fechaOrdenInicio"
+                  label="Fecha de Orden (Inicio)"
+                  prepend-icon="mdi-calendar"
+                  readonly
+                  dense
+                  outlined
+                  v-bind="attrs"
+                  v-on="on"
+                ></v-text-field>
+              </template>
+              <v-date-picker
+                v-model="filters.fechaOrdenInicio"
+                @input="fechaOrdenInicioMenu = false"
+                no-title
+                scrollable
+              ></v-date-picker>
+            </v-menu>
+          </v-list-item-content>
+        </v-list-item>
+
+        <v-list-item>
+          <v-list-item-content>
+            <v-menu
+              ref="fechaOrdenFinMenu"
+              v-model="fechaOrdenFinMenu"
+              :close-on-content-click="false"
+              transition="scale-transition"
+              offset-y
+              min-width="290px"
+            >
+              <template v-slot:activator="{ on, attrs }">
+                <v-text-field
+                  v-model="filters.fechaOrdenFin"
+                  label="Fecha de Orden (Fin)"
+                  prepend-icon="mdi-calendar"
+                  readonly
+                  dense
+                  outlined
+                  v-bind="attrs"
+                  v-on="on"
+                ></v-text-field>
+              </template>
+              <v-date-picker
+                v-model="filters.fechaOrdenFin"
+                @input="fechaOrdenFinMenu = false"
+                no-title
+                scrollable
+              ></v-date-picker>
+            </v-menu>
+          </v-list-item-content>
+        </v-list-item>
+
+        <!-- Filtros de Fecha de Envío -->
+        <v-list-item>
+          <v-list-item-content>
+            <v-menu
+              ref="fechaEnvioInicioMenu"
+              v-model="fechaEnvioInicioMenu"
+              :close-on-content-click="false"
+              transition="scale-transition"
+              offset-y
+              min-width="290px"
+            >
+              <template v-slot:activator="{ on, attrs }">
+                <v-text-field
+                  v-model="filters.fechaEnvioInicio"
+                  label="Fecha de Envío (Inicio)"
+                  prepend-icon="mdi-calendar"
+                  readonly
+                  dense
+                  outlined
+                  v-bind="attrs"
+                  v-on="on"
+                ></v-text-field>
+              </template>
+              <v-date-picker
+                v-model="filters.fechaEnvioInicio"
+                @input="fechaEnvioInicioMenu = false"
+                no-title
+                scrollable
+              ></v-date-picker>
+            </v-menu>
+          </v-list-item-content>
+        </v-list-item>
+
+        <v-list-item>
+          <v-list-item-content>
+            <v-menu
+              ref="fechaEnvioFinMenu"
+              v-model="fechaEnvioFinMenu"
+              :close-on-content-click="false"
+              transition="scale-transition"
+              offset-y
+              min-width="290px"
+            >
+              <template v-slot:activator="{ on, attrs }">
+                <v-text-field
+                  v-model="filters.fechaEnvioFin"
+                  label="Fecha de Envío (Fin)"
+                  prepend-icon="mdi-calendar"
+                  readonly
+                  dense
+                  outlined
+                  v-bind="attrs"
+                  v-on="on"
+                ></v-text-field>
+              </template>
+              <v-date-picker
+                v-model="filters.fechaEnvioFin"
+                @input="fechaEnvioFinMenu = false"
+                no-title
+                scrollable
+              ></v-date-picker>
+            </v-menu>
+          </v-list-item-content>
+        </v-list-item>
+      </v-list>
+
+      <v-divider class="mt-4"></v-divider>
+
+      <v-card-actions class="pb-4 pl-4 pr-4 pt-4">
+        <v-btn color="blue darken-1" text @click="applyFilters">Aplicar</v-btn>
+        <v-spacer></v-spacer>
+        <v-btn color="blue darken-1" class="white--text" @click="resetFilters">Borrar Filtros</v-btn>
+      </v-card-actions>
+    </v-navigation-drawer>
+
+    <v-container fluid>
+      <v-data-table
+        :headers="headers"
+        :items="filteredTareas"
+        class="elevation-1 mt-4"
+      >
+        <!-- Mostrar solo hasta modo de envío -->
+        <template v-slot:item.idFila="{ item }">
+          <span>{{ item.idFila }}</span>
+        </template>
+
+        <template v-slot:item.prioridadPedido="{ item }">
+          <span>{{ item.prioridadPedido }}</span>
+        </template>
+
+        <template v-slot:item.descuento="{ item }">
+          <span>{{ item.descuento }}%</span>
+        </template>
+
+        <template v-slot:item.precioUnitario="{ item }">
+          <span>${{ parseFloat(item.precioUnitario).toFixed(2) }}</span>
+        </template>
+
+        <template v-slot:item.costoEnvio="{ item }">
+          <span>${{ parseFloat(item.costoEnvio).toFixed(2) }}</span>
+        </template>
+
+        <template v-slot:item.idCliente="{ item }">
+          <span>{{ item.idCliente }}</span>
+        </template>
+
+        <template v-slot:item.nombreCliente="{ item }">
+          <span>{{ item.nombreCliente }}</span>
+        </template>
+
+        <template v-slot:item.modoEnvio="{ item }">
+          <span>{{ item.modoEnvio }}</span>
+        </template>
+
+        <template v-slot:item.actions="{ item }">
+          <v-icon small class="mr-2" @click="verTarea(item)">mdi-eye</v-icon>
+          <v-icon small class="mr-2" @click="editarTarea(item)">mdi-pencil</v-icon>
+          <v-icon small @click="eliminarTarea(item)">mdi-delete</v-icon>
+        </template>
+
+        <template v-slot:no-data>
+          <div class="mt-4 mb-4">
+            No hay datos 😞<br>
+            <a class="text-decoration-underline" @click="inicializar">Haz clic aquí</a> para reiniciar.
+          </div>
+        </template>
+      </v-data-table>
+    </v-container>
+
+    <!-- Diálogo para Agregar/Editar -->
+    <v-dialog v-model="dialog" max-width="800px">
+      <v-card>
+        <v-card-title>
+          <span class="headline">NUEVA ORDEN</span>
+        </v-card-title>
+
+        <v-card-text>
+          <v-container>
+            <v-form ref="form" v-model="formValido" lazy-validation>
+
+              <v-row>
+                <!-- El idFila es readonly siempre -->
+                <v-col cols="12" sm="6" md="4">
+                  <v-text-field
+                    v-model="tareaEditada.idFila"
+                    readonly
+                    label="ID de Fila"
+                    dense
+                    outlined
+                    :rules="[v => !!v || 'ID de fila es requerido']"
+                    required
+                  ></v-text-field>
+                </v-col>
+
+                <v-col cols="12" sm="6" md="4">
+                  <v-select
+                    :items="['Urgent', 'Normal', 'Low']"
+                    v-model="tareaEditada.prioridadPedido"
+                    :rules="[v => !!v || 'Prioridad de pedido es requerida']"
+                    required
+                    label="Prioridad de Pedido"
+                    dense
+                    outlined
+                  ></v-select>
+                </v-col>
+
+                <v-col cols="12" sm="6" md="4">
+                  <v-text-field
+                    v-model="tareaEditada.descuento"
+                    :rules="[v => !!v || 'Descuento es requerido']"
+                    required
+                    label="Descuento (%)"
+                    dense
+                    outlined
+                    type="number"
+                    min="0"
+                    max="100"
+                  ></v-text-field>
+                </v-col>
+
+                <v-col cols="12" sm="6" md="4">
+                  <v-text-field
+                    v-model="tareaEditada.precioUnitario"
+                    :rules="[v => !!v || 'Precio Unitario es requerido']"
+                    required
+                    label="Precio Unitario ($)"
+                    dense
+                    outlined
+                    type="number"
+                    min="0"
+                  ></v-text-field>
+                </v-col>
+
+                <v-col cols="12" sm="6" md="4">
+                  <v-text-field
+                    v-model="tareaEditada.costoEnvio"
+                    :rules="[v => !!v || 'Costo de Envío es requerido']"
+                    required
+                    label="Costo de Envío ($)"
+                    dense
+                    outlined
+                    type="number"
+                    min="0"
+                  ></v-text-field>
+                </v-col>
+
+                <v-col cols="12" sm="6" md="4">
+                  <v-text-field
+                    v-model="tareaEditada.idCliente"
+                    :rules="[v => !!v || 'ID de Cliente es requerido']"
+                    required
+                    label="ID de Cliente"
+                    dense
+                    outlined
+                  ></v-text-field>
+                </v-col>
+
+                <v-col cols="12" sm="6" md="4">
+                  <v-text-field
+                    v-model="tareaEditada.nombreCliente"
+                    :rules="[v => !!v || 'Nombre del Cliente es requerido']"
+                    required
+                    label="Nombre del Cliente"
+                    dense
+                    outlined
+                  ></v-text-field>
+                </v-col>
+
+                <v-col cols="12" sm="6" md="4">
+                  <v-select
+                    :items="['Standard', 'Express', 'Same Day']"
+                    v-model="tareaEditada.modoEnvio"
+                    :rules="[v => !!v || 'Modo de Envío es requerido']"
+                    required
+                    label="Modo de Envío"
+                    dense
+                    outlined
+                  ></v-select>
+                </v-col>
+
+                <v-col cols="12" sm="6" md="4">
+                  <v-select
+                    :items="['Consumer', 'Corporate', 'Home Office']"
+                    v-model="tareaEditada.segmentoClientes"
+                    :rules="[v => !!v || 'Segmento de Clientes es requerido']"
+                    required
+                    label="Segmento de Clientes"
+                    dense
+                    outlined
+                  ></v-select>
+                </v-col>
+
+                <v-col cols="12" sm="6" md="4">
+                  <v-select
+                    :items="['Furniture', 'Office Supplies', 'Technology']"
+                    v-model="tareaEditada.categoriaProducto"
+                    :rules="[v => !!v || 'Categoría de Producto es requerida']"
+                    required
+                    label="Categoría de Producto"
+                    dense
+                    outlined
+                  ></v-select>
+                </v-col>
+
+                <v-col cols="12" sm="6" md="4">
+                  <v-select
+                    :items="['Chairs', 'Tables', 'Storage', 'Phones', 'Accessories']"
+                    v-model="tareaEditada.subcategoriaProducto"
+                    :rules="[v => !!v || 'Subcategoría de Producto es requerida']"
+                    required
+                    label="Subcategoría de Producto"
+                    dense
+                    outlined
+                  ></v-select>
+                </v-col>
+
+                <v-col cols="12" sm="6" md="4">
+                  <v-text-field
+                    v-model="tareaEditada.contenedorProducto"
+                    :rules="[v => !!v || 'Contenedor de Producto es requerido']"
+                    required
+                    label="Contenedor de Producto"
+                    dense
+                    outlined
+                  ></v-text-field>
+                </v-col>
+
+                <v-col cols="12" sm="6" md="4">
+                  <v-text-field
+                    v-model="tareaEditada.nombreProducto"
+                    :rules="[v => !!v || 'Nombre del Producto es requerido']"
+                    required
+                    label="Nombre del Producto"
+                    dense
+                    outlined
+                  ></v-text-field>
+                </v-col>
+
+                <v-col cols="12" sm="6" md="4">
+                  <v-text-field
+                    v-model="tareaEditada.margenBaseProducto"
+                    :rules="[v => !!v || 'Margen Base del Producto es requerido']"
+                    required
+                    label="Margen Base del Producto (%)"
+                    dense
+                    outlined
+                    type="number"
+                    min="0"
+                    max="100"
+                  ></v-text-field>
+                </v-col>
+
+                <v-col cols="12" sm="6" md="4">
+                  <v-text-field
+                    v-model="tareaEditada.pais"
+                    :rules="[v => !!v || 'País es requerido']"
+                    required
+                    label="País"
+                    dense
+                    outlined
+                  ></v-text-field>
+                </v-col>
+
+                <v-col cols="12" sm="6" md="4">
+                  <v-text-field
+                    v-model="tareaEditada.region"
+                    :rules="[v => !!v || 'Región es requerida']"
+                    required
+                    label="Región"
+                    dense
+                    outlined
+                  ></v-text-field>
+                </v-col>
+
+                <v-col cols="12" sm="6" md="4">
+                  <v-text-field
+                    v-model="tareaEditada.estadoProvincia"
+                    :rules="[v => !!v || 'Estado o Provincia es requerido']"
+                    required
+                    label="Estado o Provincia"
+                    dense
+                    outlined
+                  ></v-text-field>
+                </v-col>
+
+                <v-col cols="12" sm="6" md="4">
+                  <v-text-field
+                    v-model="tareaEditada.ciudad"
+                    :rules="[v => !!v || 'Ciudad es requerida']"
+                    required
+                    label="Ciudad"
+                    dense
+                    outlined
+                  ></v-text-field>
+                </v-col>
+
+                <v-col cols="12" sm="6" md="4">
+                  <v-text-field
+                    v-model="tareaEditada.codigoPostal"
+                    :rules="[v => !!v || 'Código Postal es requerido']"
+                    required
+                    label="Código Postal"
+                    dense
+                    outlined
+                  ></v-text-field>
+                </v-col>
+
+                <!-- Fecha de orden -->
+                <v-col cols="12" sm="6" md="4">
+                  <v-dialog
+                    ref="orderDateDialog"
+                    v-model="modal_fecha_orden"
+                    persistent
+                    width="290px"
+                  >
+                    <template v-slot:activator="{ on }">
+                      <v-text-field
+                        v-model="tareaEditada.fechaOrden"
+                        :rules="[v => !!v || 'Fecha de Orden es requerida']"
+                        required
+                        label="Fecha de Orden"
+                        dense
+                        outlined
+                        v-on="on"
+                      ></v-text-field>
+                    </template>
+                    <v-date-picker
+                      v-model="tareaEditada.fechaOrden"
+                      scrollable
+                      class="pb-2"
+                    >
+                      <v-btn text color="primary" @click="modal_fecha_orden = false">Cancel</v-btn>
+                      <v-spacer></v-spacer>
+                      <v-btn color="blue darken-1" class="white--text" @click="$refs.orderDateDialog.save(tareaEditada.fechaOrden)">Select</v-btn>
+                    </v-date-picker>
+                  </v-dialog>
+                </v-col>
+
+                <!-- Fecha de envío -->
+                <v-col cols="12" sm="6" md="4">
+                  <v-dialog
+                    ref="shippingDateDialog"
+                    v-model="modal_fecha_envio"
+                    persistent
+                    width="290px"
+                  >
+                    <template v-slot:activator="{ on }">
+                      <v-text-field
+                        v-model="tareaEditada.fechaEnvio"
+                        :rules="[v => !!v || 'Fecha de Envío es requerida']"
+                        required
+                        label="Fecha de Envío"
+                        dense
+                        outlined
+                        v-on="on"
+                      ></v-text-field>
+                    </template>
+                    <v-date-picker
+                      v-model="tareaEditada.fechaEnvio"
+                      scrollable
+                      class="pb-2"
+                    >
+                      <v-btn text color="primary" @click="modal_fecha_envio = false">Cancel</v-btn>
+                      <v-spacer></v-spacer>
+                      <v-btn color="blue darken-1" class="white--text" @click="$refs.shippingDateDialog.save(tareaEditada.fechaEnvio)">Select</v-btn>
+                    </v-date-picker>
+                  </v-dialog>
+                </v-col>
+
+                <v-col cols="12" sm="6" md="4">
+                  <v-text-field
+                    v-model="tareaEditada.ganancia"
+                    :rules="[v => !!v || 'Ganancia es requerida']"
+                    required
+                    label="Ganancia ($)"
+                    dense
+                    outlined
+                    type="number"
+                    min="0"
+                  ></v-text-field>
+                </v-col>
+
+                <v-col cols="12" sm="6" md="4">
+                  <v-text-field
+                    v-model="tareaEditada.cantidadPedidaNueva"
+                    :rules="[v => !!v || 'Cantidad Pedida Nueva es requerida']"
+                    required
+                    label="Cantidad Pedida Nueva"
+                    dense
+                    outlined
+                    type="number"
+                    min="0"
+                  ></v-text-field>
+                </v-col>
+
+                <v-col cols="12" sm="6" md="4">
+                  <v-text-field
+                    v-model="tareaEditada.ventas"
+                    :rules="[v => !!v || 'Ventas son requeridas']"
+                    required
+                    label="Ventas ($)"
+                    dense
+                    outlined
+                    type="number"
+                    min="0"
+                  ></v-text-field>
+                </v-col>
+
+                <v-col cols="12" sm="6" md="4">
+                  <v-text-field
+                    v-model="tareaEditada.idPedido"
+                    :rules="[v => !!v || 'ID de Pedido es requerido']"
+                    required
+                    label="ID de Pedido"
+                    dense
+                    outlined
+                  ></v-text-field>
+                </v-col>
+
+              </v-row>
+
+            </v-form>
+          </v-container>
+        </v-card-text>
+
+        <v-card-actions>
+          <v-btn color="blue darken-1" text @click="cerrar">Cancel</v-btn>
+          <v-spacer></v-spacer>
+          <v-btn color="blue darken-1" class="white--text" @click="guardar">Save</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- Diálogo de Eliminación -->
+    <v-dialog v-model="dialogDelete" max-width="500px">
+      <v-card>
+        <v-card-title class="headline">¿Estás seguro de eliminar esta Fila?</v-card-title>
+        <v-card-actions class="pb-4">
+          <v-btn color="blue darken-1" text @click="cerrarEliminar">Cancelar</v-btn>
+          <v-spacer></v-spacer>
+          <v-btn color="blue darken-1" class="white--text" @click="confirmarEliminar">Sí</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- Diálogo de Vista Completa -->
+    <v-dialog v-model="dialogView" max-width="800px">
+      <v-card>
+        <v-card-title>
+          <span class="headline">Nº PEDIDO {{ tareaVista.idPedido }}</span>
+          <v-spacer></v-spacer>
+          <!-- Botón para descargar PDF de la vista completa -->
+          <v-btn icon @click="descargarPDF">
+            <v-icon>mdi-file-pdf-box</v-icon>
+          </v-btn>
+        </v-card-title>
+        <v-card-text>
+          <v-container>
+            <v-row>
+              <!-- Mostrar TODOS los campos en modo vista -->
+              <v-col cols="12" sm="6" md="4"><strong>ID de Fila:</strong> {{ tareaVista.idFila }}</v-col>
+              <v-col cols="12" sm="6" md="4"><strong>Prioridad de Pedido:</strong> {{ tareaVista.prioridadPedido }}</v-col>
+              <v-col cols="12" sm="6" md="4"><strong>Descuento (%):</strong> {{ tareaVista.descuento }}</v-col>
+              <v-col cols="12" sm="6" md="4"><strong>Precio Unitario ($):</strong> {{ tareaVista.precioUnitario }}</v-col>
+              <v-col cols="12" sm="6" md="4"><strong>Costo de Envío ($):</strong> {{ tareaVista.costoEnvio }}</v-col>
+              <v-col cols="12" sm="6" md="4"><strong>ID de Cliente:</strong> {{ tareaVista.idCliente }}</v-col>
+              <v-col cols="12" sm="6" md="4"><strong>Nombre del Cliente:</strong> {{ tareaVista.nombreCliente }}</v-col>
+              <v-col cols="12" sm="6" md="4"><strong>Modo de Envío:</strong> {{ tareaVista.modoEnvio }}</v-col>
+              <v-col cols="12" sm="6" md="4"><strong>Segmento de Clientes:</strong> {{ tareaVista.segmentoClientes }}</v-col>
+              <v-col cols="12" sm="6" md="4"><strong>Categoría de Producto:</strong> {{ tareaVista.categoriaProducto }}</v-col>
+              <v-col cols="12" sm="6" md="4"><strong>Subcategoría de Producto:</strong> {{ tareaVista.subcategoriaProducto }}</v-col>
+              <v-col cols="12" sm="6" md="4"><strong>Contenedor de Producto:</strong> {{ tareaVista.contenedorProducto }}</v-col>
+              <v-col cols="12" sm="6" md="4"><strong>Nombre del Producto:</strong> {{ tareaVista.nombreProducto }}</v-col>
+              <v-col cols="12" sm="6" md="4"><strong>Margen Base del Producto (%):</strong> {{ tareaVista.margenBaseProducto }}</v-col>
+              <v-col cols="12" sm="6" md="4"><strong>País:</strong> {{ tareaVista.pais }}</v-col>
+              <v-col cols="12" sm="6" md="4"><strong>Región:</strong> {{ tareaVista.region }}</v-col>
+              <v-col cols="12" sm="6" md="4"><strong>Estado o Provincia:</strong> {{ tareaVista.estadoProvincia }}</v-col>
+              <v-col cols="12" sm="6" md="4"><strong>Ciudad:</strong> {{ tareaVista.ciudad }}</v-col>
+              <v-col cols="12" sm="6" md="4"><strong>Código Postal:</strong> {{ tareaVista.codigoPostal }}</v-col>
+              <v-col cols="12" sm="6" md="4"><strong>Fecha de Orden:</strong> {{ formatearFecha(tareaVista.fechaOrden) }}</v-col>
+              <v-col cols="12" sm="6" md="4"><strong>Fecha de Envío:</strong> {{ formatearFecha(tareaVista.fechaEnvio) }}</v-col>
+              <v-col cols="12" sm="6" md="4"><strong>Ganancia ($):</strong> {{ tareaVista.ganancia }}</v-col>
+              <v-col cols="12" sm="6" md="4"><strong>Cantidad Pedida Nueva:</strong> {{ tareaVista.cantidadPedidaNueva }}</v-col>
+              <v-col cols="12" sm="6" md="4"><strong>Ventas ($):</strong> {{ tareaVista.ventas }}</v-col>
+
+            </v-row>
+          </v-container>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn color="blue darken-1" text @click="dialogView = false">Cerrar</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+
+  </v-app>
+</div>
+
+<script src='https://cdn.jsdelivr.net/npm/vue/dist/vue.js'></script>
+<script src='https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js'></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.2/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+new Vue({
+  el: '#app',
+  vuetify: new Vuetify(),
+
+  data: () => ({
+    drawer: false,
+    dialog: false,
+    dialogDelete: false,
+    dialogView: false,
+    modal_fecha_orden: false,
+    modal_fecha_envio: false,
+    formValido: true,
+    editedIndex: -1,
+    // Para ver tarea completa
+    tareaVista: {},
+    tareaEditada: {
+      idFila: '',
+      prioridadPedido: '',
+      descuento: 0,
+      precioUnitario: 0,
+      costoEnvio: 0,
+      idCliente: '',
+      nombreCliente: '',
+      modoEnvio: '',
+      segmentoClientes: '',
+      categoriaProducto: '',
+      subcategoriaProducto: '',
+      contenedorProducto: '',
+      nombreProducto: '',
+      margenBaseProducto: 0,
+      pais: '',
+      region: '',
+      estadoProvincia: '',
+      ciudad: '',
+      codigoPostal: '',
+      fechaOrden: '',
+      fechaEnvio: '',
+      ganancia: 0,
+      cantidadPedidaNueva: 0,
+      ventas: 0,
+      idPedido: '',
+    },
+    tareaPorDefecto: {
+      idFila: '',
+      prioridadPedido: '',
+      descuento: 0,
+      precioUnitario: 0,
+      costoEnvio: 0,
+      idCliente: '',
+      nombreCliente: '',
+      modoEnvio: '',
+      segmentoClientes: '',
+      categoriaProducto: '',
+      subcategoriaProducto: '',
+      contenedorProducto: '',
+      nombreProducto: '',
+      margenBaseProducto: 0,
+      pais: '',
+      region: '',
+      estadoProvincia: '',
+      ciudad: '',
+      codigoPostal: '',
+      fechaOrden: '',
+      fechaEnvio: '',
+      ganancia: 0,
+      cantidadPedidaNueva: 0,
+      ventas: 0,
+      idPedido: '',
+    },
+    tareas: [],
+    // Filtros
+    filters: {
+      categoriaProducto: 'All',
+      fechaOrdenInicio: null,
+      fechaOrdenFin: null,
+      fechaEnvioInicio: null,
+      fechaEnvioFin: null,
+    },
+    fechaOrdenInicioMenu: false,
+    fechaOrdenFinMenu: false,
+    fechaEnvioInicioMenu: false,
+    fechaEnvioFinMenu: false,
+
+    // Búsqueda por ID de fila
+    searchIdFila: '',
+  }),
+
+  computed: {
+    headers () {
+      return [
+        { text: 'ID de Fila', value: 'idFila', align: 'center' },
+        { text: 'Prioridad de Pedido', value: 'prioridadPedido', align: 'center' },
+        { text: 'Descuento (%)', value: 'descuento', align: 'center' },
+        { text: 'Precio Unitario ($)', value: 'precioUnitario', align: 'center' },
+        { text: 'Costo de Envío ($)', value: 'costoEnvio', align: 'center' },
+        { text: 'ID de Cliente', value: 'idCliente', align: 'center' },
+        { text: 'Nombre del Cliente', value: 'nombreCliente', align: 'center' },
+        { text: 'Modo de Envío', value: 'modoEnvio', align: 'center' },
+        { text: 'Actions', value: 'actions', align: 'center', sortable: false },
+      ]
+    },
+    tituloFormulario () {
+      return this.editedIndex === -1 ? 'Nueva Tarea' : 'Editar Tarea'
+    },
+    filteredTareas() {
+      return this.tareas.filter(tarea => {
+        const idFilaMatch = tarea.idFila.toLowerCase().includes(this.searchIdFila.toLowerCase())
+
+        const categoriaMatch = this.filters.categoriaProducto === 'All' || tarea.categoriaProducto === this.filters.categoriaProducto
+
+        let fechaOrdenMatch = true
+        if (this.filters.fechaOrdenInicio) {
+          fechaOrdenMatch = fechaOrdenMatch && (tarea.fechaOrden >= this.filters.fechaOrdenInicio)
+        }
+        if (this.filters.fechaOrdenFin) {
+          fechaOrdenMatch = fechaOrdenMatch && (tarea.fechaOrden <= this.filters.fechaOrdenFin)
+        }
+
+        let fechaEnvioMatch = true
+        if (this.filters.fechaEnvioInicio) {
+          fechaEnvioMatch = fechaEnvioMatch && (tarea.fechaEnvio >= this.filters.fechaEnvioInicio)
+        }
+        if (this.filters.fechaEnvioFin) {
+          fechaEnvioMatch = fechaEnvioMatch && (tarea.fechaEnvio <= this.filters.fechaEnvioFin)
+        }
+
+        return idFilaMatch && categoriaMatch && fechaOrdenMatch && fechaEnvioMatch
+      })
+    },
+  },
+
+  created () {
+    this.inicializar()
+  },
+
+  methods: {
+    formatearFecha(fecha) {
+      if (!fecha) return ''
+      return new Date(fecha).toISOString().split('T')[0]
+    },
+
+    inicializar () {
+      this.tareas = [
+        {
+          idFila: 'R001',
+          prioridadPedido: 'High',
+          descuento: 10,
+          precioUnitario: 250.00,
+          costoEnvio: 15.00,
+          idCliente: 'C001',
+          nombreCliente: 'John Doe',
+          modoEnvio: 'Express',
+          segmentoClientes: 'Corporate',
+          categoriaProducto: 'Technology',
+          subcategoriaProducto: 'Phones',
+          contenedorProducto: 'Box',
+          nombreProducto: 'iPhone 12',
+          margenBaseProducto: 20,
+          pais: 'USA',
+          region: 'West',
+          estadoProvincia: 'California',
+          ciudad: 'Los Angeles',
+          codigoPostal: '90001',
+          fechaOrden: '2024-12-01',
+          fechaEnvio: '2024-12-03',
+          ganancia: 500.00,
+          cantidadPedidaNueva: 2,
+          ventas: 500.00,
+          idPedido: '1001',
+        },
+        {
+          idFila: 'R002',
+          prioridadPedido: 'Normal',
+          descuento: 5,
+          precioUnitario: 100.00,
+          costoEnvio: 10.00,
+          idCliente: 'C002',
+          nombreCliente: 'Jane Smith',
+          modoEnvio: 'Standard',
+          segmentoClientes: 'Consumer',
+          categoriaProducto: 'Furniture',
+          subcategoriaProducto: 'Chairs',
+          contenedorProducto: 'Crate',
+          nombreProducto: 'Office Chair',
+          margenBaseProducto: 15,
+          pais: 'Canada',
+          region: 'East',
+          estadoProvincia: 'Ontario',
+          ciudad: 'Toronto',
+          codigoPostal: 'M5H 2N2',
+          fechaOrden: '2024-11-20',
+          fechaEnvio: '2024-11-25',
+          ganancia: 300.00,
+          cantidadPedidaNueva: 3,
+          ventas: 300.00,
+          idPedido: '1002',
+        }
+      ]
+    },
+
+    nuevaTarea() {
+      this.editedIndex = -1
+      this.tareaEditada = Object.assign({}, this.tareaPorDefecto)
+      // Generar un ID único que no exista en tareas
+      this.tareaEditada.idFila = this.generarIdUnico()
+      this.dialog = true
+    },
+
+    generarIdUnico() {
+      let nuevoId
+      do {
+        let randomNum = Math.floor(Math.random() * 900) + 100 // 100-999
+        nuevoId = 'R' + randomNum
+      } while (this.tareas.some(t => t.idFila === nuevoId))
+      return nuevoId
+    },
+
+    verTarea(item) {
+      this.tareaVista = Object.assign({}, item)
+      this.dialogView = true
+    },
+
+    editarTarea (item) {
+      this.editedIndex = this.tareas.indexOf(item)
+      this.tareaEditada = Object.assign({}, item)
+      this.dialog = true
+    },
+
+    eliminarTarea (item) {
+      this.editedIndex = this.tareas.indexOf(item)
+      this.tareaEditada = Object.assign({}, item)
+      this.dialogDelete = true
+    },
+
+    confirmarEliminar () {
+      this.tareas.splice(this.editedIndex, 1)
+      this.cerrarEliminar()
+    },
+
+    cerrar () {
+      this.$refs.form.resetValidation()
+      this.dialog = false
+      this.$nextTick(() => {
+        this.tareaEditada = Object.assign({}, this.tareaPorDefecto)
+        this.editedIndex = -1
+      })
+    },
+
+    cerrarEliminar () {
+      this.dialogDelete = false
+      this.$nextTick(() => {
+        this.tareaEditada = Object.assign({}, this.tareaPorDefecto)
+        this.editedIndex = -1
+      })
+    },
+
+    guardar () {
+      if (this.validarFormulario()) {
+        if (this.editedIndex > -1) {
+          Object.assign(this.tareas[this.editedIndex], this.tareaEditada)
+        } else {
+          this.tareas.push(Object.assign({}, this.tareaEditada))
+        }
+        this.cerrar()
+      }
+    },
+
+    validarFormulario () {
+      return this.$refs.form.validate()
+    },
+
+    resetFilters() {
+      this.filters.categoriaProducto = 'All'
+      this.filters.fechaOrdenInicio = null
+      this.filters.fechaOrdenFin = null
+      this.filters.fechaEnvioInicio = null
+      this.filters.fechaEnvioFin = null
+    },
+
+    applyFilters() {
+      this.drawer = false
+    },
+
+    methods: {
+  descargarExcel() {
+    if (typeof XLSX === 'undefined') {
+      alert('XLSX no está cargado');
+      return;
+    }
+
+    const datos = this.tareas.map(t => ({
+      'ID de Fila': t.idFila,
+      'Prioridad de Pedido': t.prioridadPedido,
+      'Descuento (%)': t.descuento,
+      'Precio Unitario ($)': t.precioUnitario,
+      'Costo de Envío ($)': t.costoEnvio,
+      'ID de Cliente': t.idCliente,
+      'Nombre del Cliente': t.nombreCliente,
+      'Modo de Envío': t.modoEnvio,
+      'Segmento de Clientes': t.segmentoClientes,
+      'Categoría de Producto': t.categoriaProducto,
+      'Subcategoría de Producto': t.subcategoriaProducto,
+      'Contenedor de Producto': t.contenedorProducto,
+      'Nombre del Producto': t.nombreProducto,
+      'Margen Base del Producto (%)': t.margenBaseProducto,
+      'País': t.pais,
+      'Región': t.region,
+      'Estado o Provincia': t.estadoProvincia,
+      'Ciudad': t.ciudad,
+      'Código Postal': t.codigoPostal,
+      'Fecha de Orden': t.fechaOrden,
+      'Fecha de Envío': t.fechaEnvio,
+      'Ganancia ($)': t.ganancia,
+      'Cantidad Pedida Nueva': t.cantidadPedidaNueva,
+      'Ventas ($)': t.ventas,
+      'ID de Pedido': t.idPedido,
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(datos);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Tareas");
+
+    const wbout = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'tareas.xlsx';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  },
+
+  async descargarPDF() {
+    if (typeof jsPDF === 'undefined') {
+      alert('jsPDF no está cargado');
+      return;
+    }
+
+    const { jsPDF } = window.jspdf;
+
+    const datos = [
+      ['ID de Fila', this.tareaVista.idFila],
+      ['Prioridad de Pedido', this.tareaVista.prioridadPedido],
+      // Resto de campos...
+      ['ID de Pedido', this.tareaVista.idPedido],
+    ];
+
+    const doc = new jsPDF();
+    doc.setFontSize(14);
+    doc.text(`Nº PEDIDO ${this.tareaVista.idPedido}`, 10, 10);
+
+    doc.setFontSize(12);
+    let yPos = 20;
+    datos.forEach(([titulo, valor]) => {
+      doc.text(`${titulo}: ${valor}`, 10, yPos);
+      yPos += 10;
+    });
+
+    doc.save(`pedido_${this.tareaVista.idPedido}.pdf`);
+  }
+}
+
+  }
+})
+</script>
+
+</body>
+</html>
+
+

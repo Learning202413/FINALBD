@@ -1,0 +1,350 @@
+body, html {
+    height: 100%;
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+body {
+    
+    margin: 0;
+    padding: 0;
+  }
+  
+
+/* From Uiverse.io by SelfMadeSystem */ 
+/*
+More comprehensive version at shenanigans.shoghisimon.ca/collection/css-rain-bg/
+ */
+
+ .container {
+  display: flex;  /* Activamos Flexbox para los elementos internos */
+  gap: 2em;  /* Espacio entre el formulario y la tarjeta */
+  align-items: center;  /* Centra verticalmente dentro del contenedor */
+  justify-content: center;  /* Centra horizontalmente dentro del contenedor */
+  flex-wrap: wrap;  /* Permite que los elementos se adapten en dispositivos pequeños */
+  width: 100%;  /* Ocupa todo el ancho de la página */
+  height: 100%;  /* Ocupa todo el alto de la página */
+  background: #000;
+  background-image: radial-gradient(4px 100px at 0px 235px, #00f, #0000),
+    radial-gradient(4px 100px at 300px 235px, #00f, #0000),
+    radial-gradient(1.5px 1.5px at 150px 117.5px, #00f 100%, #0000 150%),
+    radial-gradient(4px 100px at 0px 252px, #00f, #0000),
+    radial-gradient(4px 100px at 300px 252px, #00f, #0000),
+    radial-gradient(1.5px 1.5px at 150px 126px, #00f 100%, #0000 150%),
+    radial-gradient(4px 100px at 0px 150px, #00f, #0000),
+    radial-gradient(4px 100px at 300px 150px, #00f, #0000),
+    radial-gradient(1.5px 1.5px at 150px 75px, #00f 100%, #0000 150%),
+    radial-gradient(4px 100px at 0px 253px, #00f, #0000),
+    radial-gradient(4px 100px at 300px 253px, #00f, #0000),
+    radial-gradient(1.5px 1.5px at 150px 126.5px, #00f 100%, #0000 150%),
+    radial-gradient(4px 100px at 0px 204px, #00f, #0000),
+    radial-gradient(4px 100px at 300px 204px, #00f, #0000),
+    radial-gradient(1.5px 1.5px at 150px 102px, #00f 100%, #0000 150%),
+    radial-gradient(4px 100px at 0px 134px, #00f, #0000),
+    radial-gradient(4px 100px at 300px 134px, #00f, #0000),
+    radial-gradient(1.5px 1.5px at 150px 67px, #00f 100%, #0000 150%),
+    radial-gradient(4px 100px at 0px 179px, #00f, #0000),
+    radial-gradient(4px 100px at 300px 179px, #00f, #0000),
+    radial-gradient(1.5px 1.5px at 150px 89.5px, #00f 100%, #0000 150%),
+    radial-gradient(4px 100px at 0px 299px, #00f, #0000),
+    radial-gradient(4px 100px at 300px 299px, #00f, #0000),
+    radial-gradient(1.5px 1.5px at 150px 149.5px, #00f 100%, #0000 150%),
+    radial-gradient(4px 100px at 0px 215px, #00f, #0000),
+    radial-gradient(4px 100px at 300px 215px, #00f, #0000),
+    radial-gradient(1.5px 1.5px at 150px 107.5px, #00f 100%, #0000 150%),
+    radial-gradient(4px 100px at 0px 281px, #00f, #0000),
+    radial-gradient(4px 100px at 300px 281px, #00f, #0000),
+    radial-gradient(1.5px 1.5px at 150px 140.5px, #00f 100%, #0000 150%),
+    radial-gradient(4px 100px at 0px 158px, #00f, #0000),
+    radial-gradient(4px 100px at 300px 158px, #00f, #0000),
+    radial-gradient(1.5px 1.5px at 150px 79px, #00f 100%, #0000 150%),
+    radial-gradient(4px 100px at 0px 210px, #00f, #0000),
+    radial-gradient(4px 100px at 300px 210px, #00f, #0000),
+    radial-gradient(1.5px 1.5px at 150px 105px, #00f 100%, #0000 150%);
+  background-size:
+    300px 235px,
+    300px 235px,
+    300px 235px,
+    300px 252px,
+    300px 252px,
+    300px 252px,
+    300px 150px,
+    300px 150px,
+    300px 150px,
+    300px 253px,
+    300px 253px,
+    300px 253px,
+    300px 204px,
+    300px 204px,
+    300px 204px,
+    300px 134px,
+    300px 134px,
+    300px 134px,
+    300px 179px,
+    300px 179px,
+    300px 179px,
+    300px 299px,
+    300px 299px,
+    300px 299px,
+    300px 215px,
+    300px 215px,
+    300px 215px,
+    300px 281px,
+    300px 281px,
+    300px 281px,
+    300px 158px,
+    300px 158px,
+    300px 158px,
+    300px 210px,
+    300px 210px,
+    300px 210px;
+  animation: hi 150s linear infinite;
+}
+
+  
+  @keyframes hi {
+    0% {
+      background-position:
+        0px 220px,
+        3px 220px,
+        151.5px 337.5px,
+        25px 24px,
+        28px 24px,
+        176.5px 150px,
+        50px 16px,
+        53px 16px,
+        201.5px 91px,
+        75px 224px,
+        78px 224px,
+        226.5px 350.5px,
+        100px 19px,
+        103px 19px,
+        251.5px 121px,
+        125px 120px,
+        128px 120px,
+        276.5px 187px,
+        150px 31px,
+        153px 31px,
+        301.5px 120.5px,
+        175px 235px,
+        178px 235px,
+        326.5px 384.5px,
+        200px 121px,
+        203px 121px,
+        351.5px 228.5px,
+        225px 224px,
+        228px 224px,
+        376.5px 364.5px,
+        250px 26px,
+        253px 26px,
+        401.5px 105px,
+        275px 75px,
+        278px 75px,
+        426.5px 180px;
+    }
+    to {
+      background-position:
+        0px 6800px,
+        3px 6800px,
+        151.5px 6917.5px,
+        25px 13632px,
+        28px 13632px,
+        176.5px 13758px,
+        50px 5416px,
+        53px 5416px,
+        201.5px 5491px,
+        75px 17175px,
+        78px 17175px,
+        226.5px 17301.5px,
+        100px 5119px,
+        103px 5119px,
+        251.5px 5221px,
+        125px 8428px,
+        128px 8428px,
+        276.5px 8495px,
+        150px 9876px,
+        153px 9876px,
+        301.5px 9965.5px,
+        175px 13391px,
+        178px 13391px,
+        326.5px 13540.5px,
+        200px 14741px,
+        203px 14741px,
+        351.5px 14848.5px,
+        225px 18770px,
+        228px 18770px,
+        376.5px 18910.5px,
+        250px 5082px,
+        253px 5082px,
+        401.5px 5161px,
+        275px 6375px,
+        278px 6375px,
+        426.5px 6480px;
+    }
+  }
+  
+
+/* From Uiverse.io by bhaveshxrawat */ 
+.card {
+    margin: 0;
+    width: 320px;
+    height: 380px;
+    background: #171717;
+    position: relative;
+    display: flex;
+    place-content: center;
+    place-items: center;
+    overflow: hidden;
+    border-radius: 20px;
+
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    width: 100px;
+    background-image: linear-gradient(180deg, rgb(0, 183, 255), rgb(255, 48, 255));
+    height: 130%;
+    animation: rotBGimg 3s linear infinite;
+    transition: all 0.2s linear;
+  }
+  
+  @keyframes rotBGimg {
+    from {
+      transform: rotate(0deg);
+    }
+  
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  .card::after {
+    content: '';
+    position: absolute;
+    background: #171717;
+    ;
+    inset: 5px;
+    border-radius: 15px;
+  }  
+  /* From Uiverse.io by Praashoo7 */ 
+.form {
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-left: 2em;
+    padding-right: 2em;
+    padding-bottom: 0.4em;
+    background-color: #171717;
+    border-radius: 25px;
+    transition: .4s ease-in-out;
+    width: auto;
+    height: auto;
+    margin: 0%;
+    
+  }
+  
+ 
+  
+  #heading {
+    text-align: center;
+    margin: 0.8em;
+    color: rgb(255, 255, 255);
+    font-size: 2em;
+    margin-top: 0;
+  }
+  
+  .field {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5em;
+    border-radius: 25px;
+    padding: 0.6em;
+    border: none;
+    outline: none;
+    color: white;
+    background-color: #171717;
+    box-shadow: inset 2px 5px 10px rgb(5, 5, 5);
+  }
+  
+  .input-icon {
+    height: 1.3em;
+    width: 1.3em;
+    fill: white;
+  }
+  
+  .input-field {
+    background: none;
+    border: none;
+    outline: none;
+    width: 100%;
+    color: #d3d3d3;
+  }
+  
+  .form .btn {
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+    margin-top: 2.5em;
+  }
+  
+  /* From Uiverse.io by gharsh11032000 */ 
+.button {
+    position: relative;
+    width: 155px;
+    height: 15px;
+    background-color: #000;
+    display: flex;
+    align-items: center;
+    color: white;
+    flex-direction: column;
+    justify-content: center;
+    border: none;
+    padding: 12px;
+    gap: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  
+  .button::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    left: -4px;
+    top: -1px;
+    margin: auto;
+    width: 188px;
+    height: 48px;
+    border-radius: 10px;
+    background: linear-gradient(-45deg, #e81cff 0%, #40c9ff 100% );
+    z-index: -10;
+    pointer-events: none;
+    transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  
+  .button::after {
+    content: "";
+    z-index: -1;
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(-45deg, #fc00ff 0%, #00dbde 100% );
+    transform: translate3d(0, 0, 0) scale(0.95);
+    filter: blur(20px);
+  }
+  
+  .button:hover::after {
+    filter: blur(30px);
+  }
+  
+  .button:hover::before {
+    transform: rotate(-180deg);
+  }
+  
+  .button:active::before {
+    scale: 0.7;
+  }
+  
+  
+  
+  
